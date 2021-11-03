@@ -83,7 +83,7 @@ console.log('esVar1', esVar1)
     return module.exports;
   }
 
-  // 这里由于ejs和esm的定义差异，所以esm模块需要做一个标记，
+  // 这里由于cjs和esm的定义差异，所以esm模块需要做一个标记，
   // 如果是esm模块的话返回module.export
   // TODO 这块内容会新开文章进行阐述
   (() => {
