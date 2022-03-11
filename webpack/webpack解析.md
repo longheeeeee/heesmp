@@ -71,3 +71,9 @@ loader的工作就是在webpack根据依赖找到资源后，会把资源传到l
 4. 不使用export default，使用export来拆分属性
 5. 使用esm编写的包
 
+# 6. 其他面试题
+### 1. hash，content-hash，chunk-hash的区别
+1. hash是每次构建时根据构建内容产生的hash，所有的文件其中有一个发生变化，hash就会发生变化
+2. chunk-hash是根据chunk的内容来产生hash，同一个chunk下的文件改变会互相影响
+3. content-hash，根据文件内容做的hash，同一个chunk改变也不会改变
+
