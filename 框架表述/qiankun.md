@@ -81,3 +81,7 @@ iframe
 # 8. 微前端优化
 可以共享依赖，虽然违背了微前端的理念，可是对于当前项目而言，收获是相对较大的
 
+# 9. qiankun为什么需要将子应用输出成umd
+qiankun架构下的子应用通过 webpack 的 umd 输出格式来做，让父应用在执行子应用的 js 资源时可以通过 eval，将 window 绑定到一个 Proxy 对象上，以此来防止污染全局变量，方便对脚本的 window 相关操作做劫持处理，达到子应用之间的脚本隔离。
+- 打包成cjs的话会使用`exports['app-name'] = factory()`
+- 打包成umd的话会使用`root['app-name'] = factory()`，所以使用umd可以直接获取子应用暴露出来的生命周期函数
