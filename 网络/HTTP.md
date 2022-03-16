@@ -128,3 +128,14 @@
 2. 有可能会新建线程去做tcp连接，耗费资源
 3. 保护服务器，减少服务器半开连接数
 4. keep-alive的使用会优化性能，tcp的慢启动会导致新开链接反而不会效率高
+
+## 为什么会有options请求
+options请求用于校验服务器是否支持一个真实请求的发送，一般在跨域请求的时候，浏览器如果判断这个请求不是简单请求，就会强制发送一个options请求到服务器检查该请求是否能被服务器接受。
+
+简单请求是为了判断这个请求是否会对服务器造成副作用，比如get请求和部分限定请求头的post请求会被认为是安全的，安全的post请求不能携带accept、content-type等请求头，content-type只能属于application/x-www-form-urlencoded、mutilpart/form-data、text/plain
+
+options请求可以被缓存，服务器返回`access-control-max-age`可以配置缓存时间，不过这个只限定于同一个请求多次发送，不同请求同样会发送options
+
+避免options请求可以：
+1. 不跨域
+2. 修改成简单请求

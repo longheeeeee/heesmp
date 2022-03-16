@@ -137,11 +137,17 @@ v-model的本质是语法糖
 - 原理是`nextTick`内部缓存了一个队列，当`nextTick`被调用的时候，就会把回调函数放到队列里，统一在一个异步的时间点去遍历这个队列依次触发回调函数
 
 # 29. keep-alive 使用场景和原理
-利用了`slot`的特性，`keep-alive`提供了一个非作用域插槽，`keep-alive`组件执行`render`进行渲染的时候，父组件提供的插槽内容`vnode`已经生成完成了，然后就可以对子组件`vnode`做对应的缓存，或者从缓存中获取`vnode`来渲染。
+- keep-alive是使用到了slot的特性，keep-alive里面的组件就是父组件传进来的插槽内容
+- 在第一次渲染的时候，父组件会生成所有自元素的vnode，包括keep-alive组件和里面的子组件，其中keep-alive组件是一个以占位符vnode存在的，子组件会存放在keep-alive组件的$slots上
+- 然后keep-alive会调用render function生成vnode，在里面会使用slots获取插槽内容，获得第一个子组件，然后拿组件的名称跟includes和excludes规则进行判断，如果不需要缓存的则直接返回vnode，否则去缓存中查找
+- 缓存是一个对象，key是组件定义的key没有的话取组件的cid加上tag，value是子组件vnode
+- 查找不到的话，就会把当前vnode添加到缓存中，然后设置一个keepAlive标志位，返回这个vnode
+- 在组件发生变化的时候会重新触发keep-alive的render function，然后会有新的vnode去做判断，如果缓存中有对应的vnode的话就返回缓存的vnode，抛弃父组件生成的vnode
+- 然后旧组件vnode会被销毁，在执行$destory的时候会根据keepAlive标志位判断组件是否是缓存过的，是的话调用deactivated钩子函数，否则调用destory
+- 组件再次挂载的时候，在createComponent创建子组件实例之前会进行判断，如果组建实例已经存在了并且有标志位，就不会生成新的实例，在组件挂载完成后，在原本应该调用mount钩子函数的地方也会判断标志位，来调用activated钩子函数
+- 当keep-alive规则发生改变的时候，会遍历当前的缓存，如果有不符合规则的就会把缓存删掉
+- keep-alive还有一个max属性，代表最大缓存数量，达到数量后会采用LRU算法来删掉一个缓存，具体是keep-alive会维护一个keys栈，组件被缓存的时候会往栈里push，从缓存中拿出来的时候会把对应的key挪到栈顶，这样子栈底就是最不常用的组件了，删除的时候会删掉栈底的缓存
 
-可以传入`include`和`exclude`做规则校验，不符合规则的不会做缓存，当规则发生变化的时候会删除不符合规则的缓存
-
-LRU算法：可以传入`max`作为最大缓存数量，当缓存的时候，会记录到一个栈中，缓存每次被唤起，对应的记录就会放到栈顶，最不常用的就会在栈底，当新组件缓存的时候如果缓存数量已经最大了，就会删除栈底的最不常用的缓存
 
 # 30. 作用域插槽原理
 普通插槽的内容`vnode`生成时间是父组件生成`vnode`的时候，作用域插槽因为需要获取子组件的数据，所以父组件并不会先生成`vnode`，而是保持`render function`的形式传给子组件，子组件生成`vnode`的时候就会调用父组件的`render function`，并且传入参数来生成`vnode`
