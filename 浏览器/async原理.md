@@ -60,3 +60,5 @@ console.log('before a1 strat')
 a1()
 console.log('a1 complete')
 ```
+- async返回值使用new Promise做包裹
+- await后面的返回值使用Promise.resolve()做包裹（chrome77以后的实现）
