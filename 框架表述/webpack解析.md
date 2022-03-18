@@ -46,16 +46,19 @@
 - 使用动态引入语句引入的模块，各自组合成一个 chunk
 
 # 3. plugins
-#### 什么是插件？
+### 什么是插件？
 - 插件是一个apply方法的类，apply方法在初始化阶段会执行，然后传入complier作为参数，在compiler中可以注册各种钩子回调
 ### 什么时候会触发钩子？
 1. 触发时机：webpack从构建到生成阶段过程中都会有不同的钩子
 2. 传递参数：根据调用钩子的时候，webpack正在进行什么处理来决定钩子的参数
-## 钩子如何影响编译？
-在钩子中可以通过修改状态、调用上下文api等方式对webpack当前的数据进行修改
+### 钩子如何影响编译？
+绑定了钩子函数后，webpack会在钩子的回调函数调用的时候传入当前的上下文信息，函数里面可以通过调用上下文api或者直接修改上下文数据等，对原定的流程做修改
+### 例子
+1. compiler.hooks.optimizeChunks：chunk集合构建完毕后触发，splitChunkPlugin在这个钩子实现拆分
+2. chmpiler.hooks.done：包含编译过程中的各种统计信息，webpack-bundle-analyzer基于这个钩子实现打包分析
 
 # 4. loader
-loader的工作就是在webpack根据依赖找到资源后，会把资源传到loader，理论上loader最终出来的应该是js文本或者AST，返回给webpack继续查询依赖
+loader的工作就是在webpack根据依赖找到资源后，会根据规则，把资源传到loader处理，loader经过处理后会输出给下一个loader，处理过程的最后一个loader应该返回js文本或者AST，交给webpack继续查询依赖
 
 # 5. tree-shakin
 ### 必须要ESM

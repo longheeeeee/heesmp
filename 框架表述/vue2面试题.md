@@ -195,3 +195,8 @@ vue对于使用点操作符给对象新增属性是做不到响应式的，所�
 
 # 39. transition原理
 vnode上会有很多钩子，比如create，active，remove等，在patch的过程中会调用这些钩子来对vnode进行处理，transition会给这个抽象组件的子节点添加transition属性，然后在子组件的vnode上添加create，active，remove的三个钩子，然后在patch的时候，会调用对应的钩子，create、active的时候会调用enter方法，remove会调用leave方法，如果是css过渡的话就添加上对应的enter、enter-active、enter-to等类，如果是js过渡的话就调用对应的方法，实际上transition只是会添加对应的类，动画效果需要用户写对应的样式
+
+# 40. 异步组件
+1. 异步组件在patch的时候因为没有构造函数，所以不会生成组件的实例
+2. webpack会生成一个工厂函数，调用这个函数会返回一个promise，webpack会使用jsonp来加载这个组件，然后加载完成后把结果调用resolve传给这个promise
+3. 异步组件发起请求后，会生成一个空的注释节点，然后等promise结束后，把结果存起来，调用`$forceUpadte`强行刷新组件，并触发组件的创建和挂载
