@@ -193,4 +193,5 @@ vue对于使用点操作符给对象新增属性是做不到响应式的，所�
 4. 如果头尾判断都没有相同的，使用旧`children`根据`key`来生成一个`map`，然后遍历新`children`，找到旧`chlidren`中的对应位置，然后进行移动和更新
 5. 最后遍历完成后，如果旧`children`中有剩余的就进行删除，新`children`有剩余的进行插入操作
 
-
+# 39. transition原理
+vnode上会有很多钩子，比如create，active，remove等，在patch的过程中会调用这些钩子来对vnode进行处理，transition会给这个抽象组件的子节点添加transition属性，然后在子组件的vnode上添加create，active，remove的三个钩子，然后在patch的时候，会调用对应的钩子，create、active的时候会调用enter方法，remove会调用leave方法，如果是css过渡的话就添加上对应的enter、enter-active、enter-to等类，如果是js过渡的话就调用对应的方法，实际上transition只是会添加对应的类，动画效果需要用户写对应的样式
