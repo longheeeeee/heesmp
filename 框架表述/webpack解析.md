@@ -80,3 +80,10 @@ loader的工作就是在webpack根据依赖找到资源后，会根据规则，�
 2. chunk-hash是根据chunk的内容来产生hash，同一个chunk下的文件改变会互相影响
 3. content-hash，根据文件内容做的hash，同一个chunk改变也不会改变
 
+### 2. HMR热更新原理
+1. 打包文件的时候，webpack会生成一个webpack-dev-server在本地服务器，然后代码里面注入webpack-dev-server的client用于沟通、一个HMR运行时和webpack的其他运行时
+2. webpack的watch模式下，文件发生变化，webpack会根据配置重新编译打包，然后生成的js代码存放到内存中
+3. 项目运行的时候，项目中的webpack-dev-server客户端会跟服务器建立一个socket连接，传递的是新模块的hash值
+4. 更新的时候，client端获取到更新hash后，webpack运行时会根据更新信息来决定是否刷新页面还是采用hmr部分更新
+5. 如果使用HMR更新，webpack运行时会把更新信息传递给HMR运行时，HMR运行时会向服务端发送ajax请求获取所有的更新代码，然后把新的模块代码更新到webpack模块缓存中
+6. 业务代码需要监听HMR的变动，然后重新获取模块代码，重走业务逻辑，比如vue是使用vue-loader去完成的这部分更新
