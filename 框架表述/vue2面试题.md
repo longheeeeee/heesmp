@@ -28,7 +28,7 @@ vue内置的通讯方式：
 根实例调用`$mount`的时候会先调用根实例的`beforeMount`钩子，然后后面调用patch的时候会新建子组件，子组件调用`$mount`会调用子组件的`beforeMount`钩子，然后子组件进行挂载，挂载完成的组件会被推到一个数组中，最后同层的所有子组件都挂载完成后遍历触发数组中组件的`mounted`钩子，根实例下所有元素都挂载完成后再执行根实例的`mounted`
 - mounted的执行时机是每一个子组件同层下面的所有子组件会同时依次执行，然后当前子组件会在它的父组件的同层子组件下面依次执行
 ### 3. beforeUpdate&updated
-数据发生更改的时候，会对所有观察这个数据的watcher派发更新，触发对应watcher的update方法，watcher会被推到一个队列中，等待nextTick的时候被遍历触发更新，render watcher在初始化的时候传入了before钩子，然后render watcher更新的时候会调用这个钩子，这个钩子触发组件的`beforeUpdate`钩子，最后所有watcher都更新完成后，遍历触发刚才执行过更新的watcher对应组件的`updated`方法
+数据发生更改的时候，会对所有观察这个数据的`watcher`派发更新，触发对应`watcher`的`update`方法，`watcher`会被推到一个队列中，等待`nextTick`的时候被遍历触发更新，`render watcher`在初始化的时候传入了`before`钩子，然后`render watcher`更新的时候会调用这个钩子，这个钩子触发组件的`beforeUpdate`钩子，最后所有watcher都更新完成后，遍历触发刚才执行过更新的watcher对应组件的`updated`方法
 ### 4. beforeDestroy & destroyed
 patch过程中删除节点的时候会调用`removeVnodes`方法，会递归执行下面所有子组件的`$destory`方法，其中会先执行`beforeDestroy`，然后进行一系列卸载操作，最后执行`destroy`钩子
 ### 5. activited&deactivited
