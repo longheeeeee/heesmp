@@ -66,3 +66,32 @@ console.log('a1 complete')
 
 [「译」更快的 async 函数和 promises](https://juejin.cn/post/6844903715342647310)
 [令人费解的 async/await 执行顺序](https://juejin.cn/post/6844903762478235656)
+
+下面是其他人对`resolveThenableJob`的思考[参考文章](https://juejin.cn/post/7055202073511460895)
+
+> 注意: 此作业使用提供的 thenable 及其 then 方法来解决给定的 Promise。此过程必须作为作业进行，以确保在对任何周围代码的评估完成后对 then 方法进行评估。
+
+引至 `ECMAScript NewPromiseResolveThenableJobTask 规范[27](作者翻译)`
+什么是 thenable：
+Javascript 为了识别 Promise 产生的一个概念，简单来说就是所有包含 then 方法的对象都是 thenable。
+> 『以确保在对任何周围代码的评估完成后对 then 方法进行评估』
+
+指的是什么呢？我唯一能想到的就是下面这种情况。
+```js
+const p1 = new Promise((resolve, reject) => {
+    const p2 = Promise.resolve().then(() => {
+        resolve({
+            then: (resolve, reject) => resolve(1)
+        });
+        const p3 = Promise.resolve().then(() => console.log(2));
+    });
+}).then(v => console.log(v));
+// 2 1
+```
+上面 p2 的 onFulfilled回调 会先进入 microtask 队列，等待其执行时 调用 p1 的 resolve，但是参数是一个包含 then 方法的对象。这时 p1 不会立即改变为 fulfilled，而是创建一个 microtask 来执行这个then方法，然后将 p2的 onFulfilled 加入 microtask 队列。这时 microtask 队列中有两个 microtask，一个是执行 resolve 返回值中的 then函数，另一个则是 p3的 onFulfilled 函数。
+
+然后取出第一个 microtask 执行（取出后 microtask 队列中只剩下 p3的 onFulfilled），执行后 p1 的状态变为 fulfilled，然后 p1 的 onFulfilled 进入队列。后面可想而知是相继输出 2和1（因为 p1 的 onFulfilled 函数在 p3 的 onFulfilled 函数之后进入 microtask 队列）。
+
+如果没有将 NewPromiseResolveThenableJobTask 作为一个 microtask。也就变成了 p2.then 中的回调执行时同步触发 resolve 参数中的 then 方法，fulfilled 的状态会立即同步到 p1,这时 p1 的 onFulfilled 就会先进入 microtask，导致结果变为 12。这样的执行结果可以会让JavaScript开发者感到疑惑。
+
+所以 ECMAScript 将其作为一个异步任务来执行。
