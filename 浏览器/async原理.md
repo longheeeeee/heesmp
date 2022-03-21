@@ -64,6 +64,13 @@ console.log('a1 complete')
 - await后面的返回值使用Promise.resolve()做包裹（chrome77以后的实现）
 - chrome77 之前使用new Promise包裹
 
+
+
+
+
+
+
+
 [「译」更快的 async 函数和 promises](https://juejin.cn/post/6844903715342647310)
 [令人费解的 async/await 执行顺序](https://juejin.cn/post/6844903762478235656)
 

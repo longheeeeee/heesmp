@@ -30,13 +30,13 @@ vue内置的通讯方式：
 ### 3. beforeUpdate&updated
 数据发生更改的时候，会对所有观察这个数据的`watcher`派发更新，触发对应`watcher`的`update`方法，`watcher`会被推到一个队列中，等待`nextTick`的时候被遍历触发更新，`render watcher`在初始化的时候传入了`before`钩子，然后`render watcher`更新的时候会调用这个钩子，这个钩子触发组件的`beforeUpdate`钩子，最后所有watcher都更新完成后，遍历触发刚才执行过更新的watcher对应组件的`updated`方法
 ### 4. beforeDestroy & destroyed
-patch过程中删除节点的时候会调用`removeVnodes`方法，会递归执行下面所有子组件的`$destory`方法，其中会先执行`beforeDestroy`，然后进行一系列卸载操作，最后执行`destroy`钩子
+patch过程中删除节点的时候会调用`removeVnodes`方法，会递归执行下面所有子组件的`$destory`方法，其中会先执行`beforeDestroy`，然后进行一系列卸载操作，比如从parent组件中删除自己，销毁所有的watcher，使用patch把当前dom删掉，最后执行`destroy`钩子
 ### 5. activited&deactivited
 1. 父组件数据更新之后，执行patch的过程中，如果子组件有插槽内容，则会强制子组件更新，所以keep-alive组件会触发更新，调用patch方法挂载缓存的子节点，子组件挂载后会触发vnode的insert钩子函数，如果组件上有keep-alive标志的话调用`activited`否则是`mounted`
 2. patch过程中删除节点的时候会调用`removeVnodes`方法，其中会调用`invokeDestroyHook`，会把递归执行下面所有子组件vnode的`destory`钩子，如果判断vnode是keep-alive组件，则调用`deactivited`
 
 # 4.1 异步请求在哪一步发起
-`created``beforeMount``mounted`都行，如果不需要DOM操作最好在`created`钩子，需要的话在`mounted`，`created`的时候如果有默认情况或者是特殊情况不需要发起请求的话，可以先一步使用最终数据渲染vnode，如果是`mounted`钩子的话会先渲染完再修改
+`created` `beforeMount` `mounted`都行，如果不需要DOM操作最好在`created`钩子，需要的话在`mounted`，`created`的时候如果有默认情况或者是特殊情况不需要发起请求的话，可以先一步使用最终数据渲染vnode，如果是`mounted`钩子的话会先渲染完再修改
 
 # 5. v-if和v-show的区别
 v-if在生成render function过程中会被编译成三元运算符，根据条件切换返回的vnode，v-show是一个自定义指令，被混入到vnode的钩子函数上，在条件发生变化时切换`el.style.display`
