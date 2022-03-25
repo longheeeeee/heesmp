@@ -16,3 +16,7 @@
 4. 把html和数据一起返回给前端
 5. 前端获取到html和数据后，直接就可以开始渲染，不需要等js执行
 6. js执行构建vue应用后，把数据直接进行同步（不需要再次请求接口），然后把对应的事件绑定到页面上，使得页面可以进行交互（注水）
+
+[什么是前端的同构渲染？](https://www.zhihu.com/question/325952676)
+[SSR的注水和脱水](https://juejin.cn/post/7008835018558537759#heading-8)
+[彻底理解服务端渲染 - SSR原理](https://github.com/yacan8/blog/issues/30)
