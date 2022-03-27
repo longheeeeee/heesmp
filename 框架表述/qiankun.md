@@ -88,3 +88,10 @@ iframe
 `qiankun`架构下的子应用通过`webpack`的`umd`输出格式来做，让父应用在执行子应用的 js 资源时可以通过`eval`，将`window`绑定到一个`Proxy`对象上，以此来防止污染全局变量，方便对脚本的`window`相关操作做劫持处理，达到子应用之间的脚本隔离。
 - 打包成cjs的话会使用`exports['app-name'] = factory()`
 - 打包成umd的话会使用`root['app-name'] = factory()`，所以使用umd可以直接获取子应用暴露出来的生命周期函数
+
+# import-html-entry原理
+1. 使用fetch来下载HTML(这里需要支持跨域)
+2. 使用正则匹配HTML内容，把其中的link和script标签记录下来并且注释掉
+3. 使用fetch远程加载刚刚记录下来的link文件，并且在加载完成后变成style标签替换到HTML上(template)
+4. 下载script标签，对JS代码做包装，把qiankun传进来的proxy绑定上去，生成一个全局作用域被改动了的函数(不执行)(execScript)
+5. 返回template，execScript等内容

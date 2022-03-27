@@ -14,7 +14,7 @@ MVC数据是单向的，view-controller-model这样子流动，model更新后需
 
 # 3. Vue组件通讯方式有哪些
 vue内置的通讯方式：
-1. 父传子：props，$children，$ref
+1. 父传子：props，\$children，\$ref
 2. 子传父：emit，$parent
 3. 祖孙：provide/inject
 其他方式：
@@ -39,7 +39,9 @@ patch过程中删除节点的时候会调用`removeVnodes`方法，会递归执�
 `created` `beforeMount` `mounted`都行，如果不需要DOM操作最好在`created`钩子，需要的话在`mounted`，`created`的时候如果有默认情况或者是特殊情况不需要发起请求的话，可以先一步使用最终数据渲染vnode，如果是`mounted`钩子的话会先渲染完再修改
 
 # 5. v-if和v-show的区别
-v-if在生成render function过程中会被编译成三元运算符，根据条件切换返回的vnode，v-show是一个自定义指令，被混入到vnode的钩子函数上，在条件发生变化时切换`el.style.display`
+- 从表现上来说，这两个都是能动态切换一个元素的显隐的
+- v-if隐藏的时候会把整个dom节点从文档中删除来隐藏，v-show是给元素添加上display：none来切换
+- 原理角度来说，`v-if`在生成`render function`过程中会被编译成三元运算符，根据条件切换返回的`vnode`，`v-show`是一个自定义指令，被混入到`vnode`的钩子函数上，在条件发生变化时重新执行`render`，在调用`vnode`的`update`钩子的时候切换`el.style.display`
 
 # 6. vue内置指令
 1. v-bind 绑定属性
@@ -57,9 +59,11 @@ v-if在生成render function过程中会被编译成三元运算符，根据条�
 单向数据流指的是父组件的数据会通过props自动更新到子组件上，子组件不能直接修改props来改变父组件的数据，防止子组件更新父组件数据，使得数据流向难以理解
 
 # 8. computed和watch的区别和使用场景
-- watch实际上是使用了watcher这个类，去观察一个或者多个数据，发生变化的时候执行回调函数；
-- computed本质上也是一个watcher，数据改变的时候去更新自己的值
-- 本质上两个都差不多，使用上watch是用于监听一个或者多个数据发生变化的时候做处理，比如监听visible来开关弹窗；computed是一个带了缓存的getter，一般用于渲染
+- 使用上来说，computed是一个计算属性，通过一个方法来计算一个返回值，并且会对这个返回值做缓存，不会每次都重新计算，比较多用于直接渲染，或者做数据的整合和列表的渲染
+- watch则是传入一个属性和一个回调函数，在属性发生变化的时候会调用回调函数并且传入修改前后的值，一般用于监听某些字段的变化然后做对应的事情，比如监听弹窗的显隐等
+- 实现原理来说，这两个本质上都是使用了watcher这个类
+- watche方法在watcher里面调用字段的getter，然后字段对这个watcher做依赖收集，字段在发生变化的时候会调用watcher的update，执行用户传入的回调函数
+- computed方法的watcher监听的是整个方法的执行，watcher在方法执行前会判断dirty是否为true，false的情况下会直接返回缓存的值，true的情况下会把dirty设置成false然后执行方法，方法中被获取的数据都会对watcher做依赖收集，然后watcher会缓存方法的返回值，然后数据发生变化的时候会触发watcher的update方法，会把dirty设置成true，可是不会马上更新，而是在其他方法尝试获取computed的值的时候再次执行方法计算
 
 # 9. v-if 与 v-for 为什么不建议一起使用
 会先解析for再解析if，for数组不改变的情况如果其他数据改变导致组件发生重新渲染，会重跑render function，然后会遍历一次所有的if判断，造成性能浪费
@@ -72,16 +76,18 @@ else if (el.if && !el.ifProcessed) {
   return genIf(el, state)
 }
 ```
-如果使用computed加上filter来做判断的话，其他数据改变不会重跑多个if判断
+解决的方法有两种，如果是整个列表的显隐的话可以在外面包一层`template`，在`template`上做`v-if`
+如果是实现筛选器的功能的话，可以使用`computed`来实现，因为缓存的特性，其他数据更改的时候不会触发`computed`的方法
 
 # 10. vue2 响应式原理
-1. 响应式核心是观察者模式，vue在对数据进行响应式处理的时候，使用了`object.defineProperty`，给对象上的属性添加了getter和setter，并且采用闭包的形式给每一个字段都创建一个dep依赖收集器
-2. 在使用到这个数据的地方会建立一个观察者watcher，比如render watcher或者是自定义的watcher，访问这个响应式数据的时候，会触发数据的getter，getter会把当前访问数据的watcher使用dep依赖收集器收集起来
-3. 当数据发生变化的时候，会触发数据的setter，setter遍历当前字段dep依赖收集器里面的所有watcher派发更新，watcher收到后会执行对应的回调函数，比如render watcher就会进行重新渲染
+1. 响应式核心是观察者模式，`vue`在对数据进行响应式处理的时候，使用了`object.defineProperty`，给对象上的属性添加了`getter`和`setter`，并且采用闭包的形式给每一个字段都创建一个`dep`依赖收集器
+2. 在使用到这个数据的地方会建立一个观察者`watcher`，比如`render watcher`或者是自定义的`watcher`，访问这个响应式数据的时候，会触发数据的`getter`，`getter`会把当前访问数据的`watcher`使用`dep`依赖收集器收集起来
+3. 当数据发生变化的时候，会触发数据的`setter`，`setter`遍历当前字段`dep`依赖收集器里面的所有`watcher`派发更新，`watcher`收到后会执行对应的回调函数，比如`render watcher`就会进行重新渲染
 
 # 11. Vue如何检测数组变化
-1. 因为直接使用数组下标去新增或者修改length来删除数据这些操作并不会触发数组的setter，所以vue对数组的方法进行了重写，以应对这种需求
-2. vue在对数组做响应式处理的时候，会在该数组的原型链上插入一层，然后在插入的一层上对数组的几种方法进行重写，用户调用这些方法时，对于push、unshift和splice，会记录插入的元素，然后对这些元素做响应式处理，最后对数组的观察者派发更新
+- `vue`使用了`Object.defineProperty`来实现响应式，可是对于数组使用方括号或者修改`length`来修改数组内容是没有办法监听的，所以`vue`会对这种情况做特殊的处理
+- 在对数组做响应式处理的时候，会有两个特殊处理，一个是会在数组上添加一个依赖收集器，然后在`watcher`调用数组的`getter`的时候，会收集`watcher`的依赖，然后在数组的原型链上加了一层，对数组的八个方法做重写，其中会对`splice`、`push`、`unshift`这三个方法添加的元素做响应式处理，然后八个方法都会调用数组的`dep`上的`update`方法派发更新，最后调用原来方法进行数组的更新
+- 所以`vue`推荐开发者使用数组的方法来对数组进行修改和新增而不是使用方括号和修改`length`来修改数组的数据
 
 # 14. vue2的父子组件生命周期钩子函数执行顺序
 ### 1. 挂载
@@ -131,10 +137,7 @@ v-model的本质是语法糖
 原理：在创建组件构造函数的时候会把`mixin`的配置通过`mergeOptions`方法跟原来的配置合并起来，这个方法对于不同的配置会采用不同的合并策略，比如钩子函数会变成一个数组遍历执行，`data`中相同的`key`的值会进行覆盖等
 
 # 28. nextTick 使用场景和原理
-`nectTick`是一个可以把一些修改延后到一个异步的时间点统一执行的策略
-- 使用场景：在`vue`中，派发更新后，需要修改的`watcher`就会被存起来，等待`nexttick`这个异步时机触发的时候就会遍历调用这些更新
-- 触发时机会根据当前环境进行判断，优先级是`Promise`，`mutationObserver`，`setImmidate`，`setTimeout`
-- 原理是`nextTick`内部缓存了一个队列，当`nextTick`被调用的时候，就会把回调函数放到队列里，统一在一个异步的时间点去遍历这个队列依次触发回调函数
+在`vue`中，会有很多频繁修改`dom`的逻辑，如果同步修改的话会有性能问题，所以`vue`提供了一个异步任务来执行这些修改，这个功能就是`nexttick`。`nexttick`内部会维护一个队列，当`nexttick`被调用的时候，就会往队列里面添加一个回调函数，并且把执行队列这个操作放到一个异步任务里面，异步任务的选择有四种，按照优先级分别是`Promise`，`mutationObserver`，`setImmidate`，`setTimeout`，根据浏览器的兼容性来决定异步任务的执行策略，在异步任务执行的时候就会清空`nextTick`的队列
 
 # 29. keep-alive 使用场景和原理
 - keep-alive是使用到了slot的特性，keep-alive里面的组件就是父组件传进来的插槽内容
