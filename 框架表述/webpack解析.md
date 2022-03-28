@@ -102,6 +102,9 @@
 2. 转换：使用`babel-tarverse`遍历`AST`，然后根据转换规则，对`AST`树进行添加增加删除修改操作，插件主要就是在这里对代码进行修改
 3. 生成：使用`bebel-generator`把`AST`重新构建成代码并且输出
 
-### 5. css-loader、style-loader的作用
+### 5. babel插件原理
+`babel`插件主要在第二部分做修改，插件里面可以对不同的`AST`进行修改，根据`babel/type`来找到对应的`AST`的名称，然后可以在`visitor`对象中根据不同的`AST`配置钩子，当`babel`遍历到对应的`AST`的时候会触发钩子，并且传入对应的`AST`，钩子方法里面就可以对`AST`进行修改
+
+### 6. css-loader、style-loader的作用
 `css-loader`把引入的`css`文件转换成字符串并且输出
 `style-loader`把`css-loader`返回的`css`文本包裹成一个函数，函数会新建一个`style`节点，把`css`文本插入到内部，然后把`style`节点插入到`head`标签内。
