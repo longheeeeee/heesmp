@@ -48,3 +48,6 @@ webpack是把代码都打包成bundle，随着项目代码增长，打包速度�
 vite的基本实现原理就是启动一个koa服务器拦截浏览器对esm的请求，然后通过path找到文件并且对文件做一定处理后返回esm格式的文件给浏览器
 
 使用esbuild进行打包，esbuild底层是go，比js快很多
+
+
+https://juejin.cn/post/7050293652739850271
