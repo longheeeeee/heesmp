@@ -105,6 +105,18 @@
 ### 5. babel插件原理
 `babel`插件主要在第二部分做修改，插件里面可以对不同的`AST`进行修改，根据`babel/type`来找到对应的`AST`的名称，然后可以在`visitor`对象中根据不同的`AST`配置钩子，当`babel`遍历到对应的`AST`的时候会触发钩子，并且传入对应的`AST`，钩子方法里面就可以对`AST`进行修改
 
-### 6. css-loader、style-loader的作用
+### 6. babel的polyfill和transform-runtime
+当我们使用babel进行转译的时候，使用了了一些新的api，这些api在es5中没有对应的写法的，我们就需要引入polyfill来提供实现，引入了polyfill之后，全局的api上就会被添加对应的polyfill实现，我们就可以直接使用polyfill提供的方法了。
+##### 问题：
+1. 会污染全局
+2. 需要全量引入
+##### 全量引入
+我们在使用babel/env的时候可以添加`useBuiltIn: "usage"`来只引用使用到的polyfill，`useBuiltIn`有三个取值，`false`不做polyfill，`entry`全量引入，`usage`根据设定的浏览器版本按需引入
+##### 污染全局
+- 如果我们开发组件库，使用了`polyfill`，就会把全局变量给污染了，可以使用`@babel/runtime`把我们的`polyfill`局限在我们自己的代码里面
+- `runtime`这个库主要是把我们的使用的`api`转译成`_assign`之类的自定义方法，然后手动定义`_assign`这个方法。
+- 除此之外我们还可以使用`babel/plugin-transform-runtime`把这些定义的工具类方法单独抽离成一个模块，减少工具方法的重复定义
+
+### 7. css-loader、style-loader的作用
 `css-loader`把引入的`css`文件转换成字符串并且输出
 `style-loader`把`css-loader`返回的`css`文本包裹成一个函数，函数会新建一个`style`节点，把`css`文本插入到内部，然后把`style`节点插入到`head`标签内。
