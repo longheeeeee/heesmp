@@ -218,7 +218,40 @@ render () {
 }
 ```
 
+插槽的实现
+react的插槽有两种写法，第一种是默认插槽
+```js
+return (
+  <myComponent>
+    <div>这是默认插槽</div>
+  </myComponent>
+)
+```
+```js
+function myComponent (props) {
+  return (
+    <div>{ props.children }</div>
+  )
+}
+```
+默认插槽使用children来获取，这种情况下要注意，children这个prop不能被覆盖
 
-
-
-
+第二种是把插槽内容使用props传入，实现具名插槽
+```js
+return (
+  <myComponent
+    left={<div>left slot</div>}
+    right={<div>right slot</div>}
+  >
+  </myComponent>
+)
+```
+```js
+function myComponent (props) {
+  return (
+    <div>{ props.left }</div>
+    <div>{ props.right }</div>
+  )
+}
+```
+实际上官方没有说插槽这个词，使用的是组合这个词
