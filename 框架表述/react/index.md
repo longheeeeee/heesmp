@@ -255,3 +255,63 @@ function myComponent (props) {
 }
 ```
 实际上官方没有说插槽这个词，使用的是组合这个词
+
+
+# context（上下文）
+形成一个局部的作用域，里面的组件可以共享某些数据，我的理解跟vue的provide和inject差不多
+
+### 定义context：
+使用React.createContext来提供provider和consumer
+
+### 使用方式：
+1. 直接使用context.consumer
+2. 函数组件：使用provider和useContext钩子
+3. class组件：使用provider和contextType属性
+
+```js
+import { createContext } from 'react'
+const myContext = createContext()
+
+export function App () {
+  return (
+    <MyContext.provider value={{name: 'context value'}}>
+      <NormalComponent />
+      <FunctionComponent />
+      <ClassComponent />
+    </MyContext.provider>
+  )
+}
+```
+定义context，其中myContext.provider下面的三个组件都能访问到value这个属性
+```js
+const normalConponent = () => {
+  return (
+    <MyContext.Consumer>
+      {
+        (value) => (<div>{value.name}</div>)
+      }
+    </MyContext.Consumer>
+  )
+}
+```
+第一种使用方法是使用Consumer，传入一个函数作为子元素，参数就是provider的value值
+```js
+import { useContext } from 'react'
+const FunctionConponent = () => {
+  const value = useContext(MyContext)
+  return (<div>{value.name}</div>)
+}
+```
+第二种方法是在函数组件中使用useContext来获取context
+```js
+class ClassConponent extends react.Component {
+  static contextType = MyContext
+  render() {
+    const value = this.context
+    return <div>{value.name}</div>
+  }
+}
+```
+第三种方法是在class组件里面定义一个静态属性就可以了，在生命周期函数和render方法中都可以访问到这个值
+
+当我们想在子组件里面做更新的话，可以传入`{state, setState}`作为value传给子组件，这样子子组件就可以修改context的值了
