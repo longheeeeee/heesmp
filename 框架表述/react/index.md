@@ -315,3 +315,4 @@ class ClassConponent extends react.Component {
 第三种方法是在class组件里面定义一个静态属性就可以了，在生命周期函数和render方法中都可以访问到这个值
 
 当我们想在子组件里面做更新的话，可以传入`{state, setState}`作为value传给子组件，这样子子组件就可以修改context的值了
+
