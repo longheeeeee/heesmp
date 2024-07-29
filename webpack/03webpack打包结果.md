@@ -1,3 +1,10 @@
+# TL;DR
+1. webpack会把ESM模块和CJS模块都转成CJS的导入方式，ESM中，具名导出的会放在`module.exports`中，`default`导出的会作为一个名叫`default`的变量放在`module.exports.default`中
+2. 导出的文件以`map`的形式保存在`__webpack_modules__`中，使用相对地址作为`key`，`value`是一个传入`module`作为参数的函数
+3. 文件使用`__webpack_require__`方法引入模块，其中先判断`__webpack_module_cache__`中是否有缓存，缓存使用文件的相对地址作为key，如果没有的话，调用`__webpack_modules__`中对应的方法获取导出的对象，并且添加缓存
+4. 引用的地方会进行编译，成为`_cjs_js__WEBPACK_IMPORTED_MODULE_0__.name`这种格式
+
+# 详细解析
 ## 编写源文件
 首先编写一下源文件，包括两个模块文件和一个入口文件：
 #### cjs
@@ -46,6 +53,7 @@ console.log('esVar1', esVar1)
         module.exports.cjs2 = cjs2 // cjs1.cjs2 = cjs2
       }),
 
+    // 三个参数分别为module, module.exports, __webpack_require__
     "./src/es.js": ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
         "use strict";
         // 这里可以先看下面工具函数的定义再回头看
