@@ -1,0 +1,1 @@
+https://learnyouahaskell.mno2.org/zh-cn/ch01/introduction
