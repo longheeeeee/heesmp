@@ -128,3 +128,16 @@
 ### 7. css-loader、style-loader的作用
 `css-loader`把引入的`css`文件转换成字符串并且输出
 `style-loader`把`css-loader`返回的`css`文本包裹成一个函数，函数会新建一个`style`节点，把`css`文本插入到内部，然后把`style`节点插入到`head`标签内。
+
+# 优化webapck编译速度
+之前使用的是dll/happypack等
+现在内置了cache方法
+webpack会在三个不同地方进行缓存
+1. 模块依赖关系moduleGraph
+2. 经过loader处理后的代码module
+3. 经过依赖注入、代码转译后的代码chunk
+
+# 有没有写过什么plugin？
+写过小demo，作用是代替external，在代码里面找到存在配置中的依赖，然后记录这些依赖，在html上添加对应的cdn地址
+1. 使用到了normalModuleFactory这个hook来在解析模块之前，把解析出来的引用都转成外部依赖
+2. 使用HTMLwebpackplugin来在输出之前添加对应的script标签到html上
